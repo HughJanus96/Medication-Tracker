@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Medication Tracker">
+    <title>Medication Tracker - Home</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .card:hover, .card:active {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .card.tracker1 {
+            border-left: 5px solid #667eea;
+        }
+
+        .card.tracker2 {
+            border-left: 5px solid #f5576c;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            color: white;
+        }
+
+        .instructions h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💊 Medication Tracker</h1>
+            <p>Select which tracker you want to use</p>
+        </div>
+
+        <a href="index.html" class="card tracker1">
+            <div class="card-icon">📋</div>
+            <div class="card-title">First Prescription</div>
+            <div class="card-description">
+                7 medications including Carbocisteine, Loratadine, Montelukast (30 days), Nasal Spray, Salbutamol, Sodium Chloride, and Ipratropium
+            </div>
+        </a>
+
+        <a href="zahra.html" class="card tracker2">
+            <div class="card-icon">🏥</div>
+            <div class="card-title">Zahra's Prescription</div>
+            <div class="card-description">
+                6 medications including Levocetirizine, Nasal Spray, Nebulizer medications (Salbutamol, Budesonide, Sodium Chloride), and Paracetamol (as needed)
+            </div>
+        </a>
+
+        <div class="instructions">
+            <h3>📱 Add to iPhone Home Screen:</h3>
+            <ol>
+                <li>Tap the Share button (⬆️) at the bottom of Safari</li>
+                <li>Scroll down and tap "Add to Home Screen"</li>
+                <li>Tap "Add"</li>
+                <li>Now you have an app icon on your home screen!</li>
+            </ol>
+            <p style="margin-top: 15px;">
+                ✅ Works offline<br>
+                ✅ Progress saved automatically<br>
+                ✅ Timers and alerts<br>
+                ✅ No app store needed
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Made with ❤️ for easy medication tracking</p>
+        </div>
+    </div>
+</body>
+</html>

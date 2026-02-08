@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Medication Tracker - Mobile</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            font-size: 14px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .alert-banner {
+            background: #ff4444;
+            color: white;
+            padding: 12px 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+        
+        .alert-banner.show {
+            display: block;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .timer-banner {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 15px;
+            text-align: center;
+            font-size: 13px;
+            display: none;
+        }
+        
+        .timer-banner.show {
+            display: block;
+        }
+        
+        .timer-banner .next-dose {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .timer-banner .countdown {
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        
+        .date-nav {
+            background: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 88px;
+            z-index: 99;
+        }
+        
+        .date-nav button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        
+        .date-nav button:active {
+            transform: scale(0.95);
+            background: #5568d3;
+        }
+        
+        .current-date {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .info-banner {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            margin: 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #856404;
+        }
+        
+        .med-card {
+            background: white;
+            margin: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .med-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .med-header-content {
+            flex: 1;
+        }
+        
+        .collapse-icon {
+            font-size: 20px;
+            transition: transform 0.3s;
+            margin-left: 10px;
+        }
+        
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        .med-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+        }
+        
+        .med-details {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .med-body {
+            padding: 15px;
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+        
+        .med-body.collapsed {
+            max-height: 0;
+            padding: 0 15px;
+        }
+        
+        .dose-schedule {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .dose-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .dose-item.completed {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .dose-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .dose-time {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .checkbox-custom {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #667eea;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+        
+        .checkbox-custom:active {
+            transform: scale(0.9);
+        }
+        
+        .checkbox-custom.checked {
+            background: #28a745;
+            border-color: #28a745;
+        }
+        
+        .checkbox-custom.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .inactive-dose {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        .progress-bar {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .progress-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .progress-track {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .summary-section {
+            background: white;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .summary-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+        
+        .summary-grid {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .summary-med-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .summary-progress {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .footer-notes {
+            background: #fff3cd;
+            margin: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #856404;
+            line-height: 1.6;
+        }
+        
+        .footer-notes strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .footer-notes ul {
+            margin: 8px 0 0 0;
+            padding-left: 20px;
+        }
+        
+        .footer-notes li {
+            margin: 5px 0;
+        }
+        
+        .reset-button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: calc(100% - 30px);
+            margin: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        
+        .reset-button:active {
+            transform: scale(0.98);
+            background: #c82333;
+        }
+        
+        .special-med {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💊 Medication Tracker</h1>
+        <p>Patient: <span id="patient-name">__________</span></p>
+        <p>Start: Friday, 07 Feb 2026</p>
+    </div>
+
+    <div class="alert-banner" id="alert-banner">
+        ⚠️ MISSED DOSE! <span id="alert-text"></span>
+    </div>
+
+    <div class="timer-banner" id="timer-banner">
+        <div class="next-dose" id="next-dose-text"></div>
+        <div class="countdown" id="countdown-text"></div>
+    </div>
+
+    <div class="date-nav">
+        <button onclick="previousDay()">← Previous</button>
+        <div class="current-date" id="current-date">Fri, 07 Feb</div>
+        <button onclick="nextDay()">Next →</button>
+    </div>
+
+    <div class="info-banner">
+        ⚠️ <strong>Remember:</strong> Nebulizer meds can be combined. Mark doses immediately after giving.
+    </div>
+
+    <!-- Medication Cards -->
+    <div id="medication-container"></div>
+
+    <!-- Summary Section -->
+    <div class="summary-section">
+        <h2 class="summary-title">📊 Overall Progress</h2>
+        <div class="summary-grid" id="summary-container"></div>
+    </div>
+
+    <div class="footer-notes">
+        <strong>📝 Important Notes:</strong>
+        <ul>
+            <li><strong>Montelukast:</strong> Give before sleep every night</li>
+            <li><strong>Nebulizer meds:</strong> Salbutamol, NaCl 3ml, Ipratropium can be combined</li>
+            <li>Maintain consistent times for best results</li>
+            <li>If dose missed, give ASAP unless near next dose</li>
+        </ul>
+    </div>
+
+    <button class="reset-button" onclick="resetAllData()">🔄 Reset All Progress</button>
+
+    <script>
+        // Medication data structure
+        const medications = [
+            {
+                id: 'carbocisteine',
+                name: 'CARBOCISTEINE (RHINATHIOL)',
+                details: '5ML Oral | 2x daily | 7 days',
+                schedule: [
+                    { day: 0, doses: ['Morning', 'Evening'], times: ['9:00 AM', '9:00 PM'] },
+                    { day: 1, doses: ['Morning', 'Evening'], times: ['9:00 AM', '9:00 PM'] },
+                    { day: 2, doses: ['Morning', 'Evening'], times: ['9:00 AM', '9:00 PM'] },
+                    { day: 3, doses: ['Morning', 'Evening'], times: ['9:00 AM', '9:00 PM'] },
+                    { day: 4, doses: ['Morning', 'Evening'], times: ['9:00 AM', '9:00 PM'] },
+                    { day: 5, doses: ['Morning', 'Evening'], times: ['9:00 AM', '9:00 PM'] },
+                    { day: 6, doses: ['Morning', 'Evening'], times: ['9:00 AM', '9:00 PM'] }
+                ],
+                totalDoses: 14
+            },
+            {
+                id: 'loratadine',
+                name: 'LORATADINE (LORINASE)',
+                details: '5ML Oral | 1x daily | 7 days',
+                schedule: [
+                    { day: 0, doses: ['Daily'], times: ['9:00 AM'] },
+                    { day: 1, doses: ['Daily'], times: ['9:00 AM'] },
+                    { day: 2, doses: ['Daily'], times: ['9:00 AM'] },
+                    { day: 3, doses: ['Daily'], times: ['9:00 AM'] },
+                    { day: 4, doses: ['Daily'], times: ['9:00 AM'] },
+                    { day: 5, doses: ['Daily'], times: ['9:00 AM'] },
+                    { day: 6, doses: ['Daily'], times: ['9:00 AM'] }
+                ],
+                totalDoses: 7
+            },
+            {
+                id: 'montelukast',
+                name: 'MONTELUKAST (AIRFAST)',
+                details: '4MG Oral | BEFORE SLEEP | 30 days',
+                schedule: Array.from({length: 30}, (_, i) => ({ 
+                    day: i, 
+                    doses: ['Before Sleep'], 
+                    times: ['Before Bed'] 
+                })),
+                totalDoses: 30,
+                special: true
+            },
+            {
+                id: 'nasal-spray',
+                name: 'SODIUM CHLORIDE NASAL SPRAY',
+                details: 'Spray | 3x daily | 5 days',
+                schedule: [
+                    { day: 0, doses: ['Morning', 'Midday', 'Evening'], times: ['8:00 AM', '2:00 PM', '8:00 PM'] },
+                    { day: 1, doses: ['Morning', 'Midday', 'Evening'], times: ['8:00 AM', '2:00 PM', '8:00 PM'] },
+                    { day: 2, doses: ['Morning', 'Midday', 'Evening'], times: ['8:00 AM', '2:00 PM', '8:00 PM'] },
+                    { day: 3, doses: ['Morning', 'Midday', 'Evening'], times: ['8:00 AM', '2:00 PM', '8:00 PM'] },
+                    { day: 4, doses: ['Morning', 'Midday', 'Evening'], times: ['8:00 AM', '2:00 PM', '8:00 PM'] }
+                ],
+                totalDoses: 15
+            },
+            {
+                id: 'salbutamol',
+                name: 'SALBUTAMOL (VENTOLIN) Nebulizer',
+                details: '0.8ML | 3x daily | 3 days',
+                schedule: [
+                    { day: 0, doses: ['Morning', 'Midday', 'Evening'], times: ['8:00 AM', '2:00 PM', '8:00 PM'] },
+                    { day: 1, doses: ['Morning', 'Midday', 'Evening'], times: ['8:00 AM', '2:00 PM', '8:00 PM'] },
+                    { day: 2, doses: ['Morning', 'Midday', 'Evening'], times: ['8:00 AM', '2:00 PM', '8:00 PM'] }
+                ],
+                totalDoses: 9
+            },
+            {
+                id: 'nacl-nebulizer',
+                name: 'SODIUM CHLORIDE Nebulizer',
+                details: '3ML | 2x daily | 5 days',
+                schedule: [
+                    { day: 0, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] },
+                    { day: 1, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] },
+                    { day: 2, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] },
+                    { day: 3, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] },
+                    { day: 4, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] }
+                ],
+                totalDoses: 10
+            },
+            {
+                id: 'ipratropium',
+                name: 'IPRATROPIUM (ATROVENT) Nebulizer',
+                details: '250MCG | 2x daily | 5 days',
+                schedule: [
+                    { day: 0, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] },
+                    { day: 1, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] },
+                    { day: 2, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] },
+                    { day: 3, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] },
+                    { day: 4, doses: ['Morning', 'Evening'], times: ['8:00 AM', '8:00 PM'] }
+                ],
+                totalDoses: 10
+            }
+        ];
+
+        const days = [
+            { date: 'Fri, 07 Feb', index: 0 },
+            { date: 'Sat, 08 Feb', index: 1 },
+            { date: 'Sun, 09 Feb', index: 2 },
+            { date: 'Mon, 10 Feb', index: 3 },
+            { date: 'Tue, 11 Feb', index: 4 },
+            { date: 'Wed, 12 Feb', index: 5 },
+            { date: 'Thu, 13 Feb', index: 6 },
+            { date: 'Fri, 14 Feb', index: 7 },
+            { date: 'Sat, 15 Feb', index: 8 },
+            { date: 'Sun, 16 Feb', index: 9 },
+            { date: 'Mon, 17 Feb', index: 10 },
+            { date: 'Tue, 18 Feb', index: 11 },
+            { date: 'Wed, 19 Feb', index: 12 },
+            { date: 'Thu, 20 Feb', index: 13 },
+            { date: 'Fri, 21 Feb', index: 14 },
+            { date: 'Sat, 22 Feb', index: 15 },
+            { date: 'Sun, 23 Feb', index: 16 },
+            { date: 'Mon, 24 Feb', index: 17 },
+            { date: 'Tue, 25 Feb', index: 18 },
+            { date: 'Wed, 26 Feb', index: 19 },
+            { date: 'Thu, 27 Feb', index: 20 },
+            { date: 'Fri, 28 Feb', index: 21 },
+            { date: 'Sat, 01 Mar', index: 22 },
+            { date: 'Sun, 02 Mar', index: 23 },
+            { date: 'Mon, 03 Mar', index: 24 },
+            { date: 'Tue, 04 Mar', index: 25 },
+            { date: 'Wed, 05 Mar', index: 26 },
+            { date: 'Thu, 06 Mar', index: 27 },
+            { date: 'Fri, 07 Mar', index: 28 },
+            { date: 'Sat, 08 Mar', index: 29 }
+        ];
+
+        let currentDayIndex = 0;
+
+        // Load saved data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('medicationData');
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        // Save data to localStorage
+        function saveData(data) {
+            localStorage.setItem('medicationData', JSON.stringify(data));
+        }
+
+        // Load collapsed state
+        function loadCollapsedState() {
+            const saved = localStorage.getItem('collapsedState');
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        // Save collapsed state
+        function saveCollapsedState(state) {
+            localStorage.setItem('collapsedState', JSON.stringify(state));
+        }
+
+        // Toggle collapse
+        function toggleCollapse(medId) {
+            const collapsed = loadCollapsedState();
+            collapsed[medId] = !collapsed[medId];
+            saveCollapsedState(collapsed);
+            renderMedications();
+        }
+
+        // Parse time string to minutes since midnight
+        function timeToMinutes(timeStr) {
+            if (timeStr === 'Before Bed') return 21 * 60; // 9 PM
+            if (timeStr === 'As Needed') return null;
+            
+            const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/);
+            if (!match) return null;
+            
+            let hours = parseInt(match[1]);
+            const minutes = parseInt(match[2]);
+            const period = match[3];
+            
+            if (period === 'PM' && hours !== 12) hours += 12;
+            if (period === 'AM' && hours === 12) hours = 0;
+            
+            return hours * 60 + minutes;
+        }
+
+        // Get current time in minutes since midnight
+        function getCurrentMinutes() {
+            const now = new Date();
+            return now.getHours() * 60 + now.getMinutes();
+        }
+
+        // Find next dose
+        function findNextDose() {
+            const data = loadData();
+            const currentMinutes = getCurrentMinutes();
+            let nextDose = null;
+            let minTimeDiff = Infinity;
+
+            medications.forEach(med => {
+                const daySchedule = med.schedule.find(s => s.day === currentDayIndex);
+                if (!daySchedule) return;
+
+                daySchedule.doses.forEach((dose, index) => {
+                    const key = `${med.id}_${currentDayIndex}_${index}`;
+                    const isChecked = data[key] || false;
+                    
+                    if (!isChecked) {
+                        const doseMinutes = timeToMinutes(daySchedule.times[index]);
+                        if (doseMinutes !== null) {
+                            const timeDiff = doseMinutes - currentMinutes;
+                            
+                            if (timeDiff > 0 && timeDiff < minTimeDiff) {
+                                minTimeDiff = timeDiff;
+                                nextDose = {
+                                    medName: med.name.split(' ')[0],
+                                    dose: dose,
+                                    time: daySchedule.times[index],
+                                    minutes: doseMinutes,
+                                    medId: med.id,
+                                    doseIndex: index
+                                };
+                            }
+                        }
+                    }
+                });
+            });
+
+            return nextDose;
+        }
+
+        // Find missed doses
+        function findMissedDoses() {
+            const data = loadData();
+            const currentMinutes = getCurrentMinutes();
+            const missed = [];
+
+            medications.forEach(med => {
+                const daySchedule = med.schedule.find(s => s.day === currentDayIndex);
+                if (!daySchedule) return;
+
+                daySchedule.doses.forEach((dose, index) => {
+                    const key = `${med.id}_${currentDayIndex}_${index}`;
+                    const isChecked = data[key] || false;
+                    
+                    if (!isChecked) {
+                        const doseMinutes = timeToMinutes(daySchedule.times[index]);
+                        if (doseMinutes !== null && doseMinutes < currentMinutes - 30) { // 30 min grace period
+                            missed.push({
+                                medName: med.name.split(' ')[0],
+                                dose: dose,
+                                time: daySchedule.times[index]
+                            });
+                        }
+                    }
+                });
+            });
+
+            return missed;
+        }
+
+        // Update timer and alerts
+        function updateTimerAndAlerts() {
+            const nextDose = findNextDose();
+            const missedDoses = findMissedDoses();
+            
+            // Update alert banner
+            const alertBanner = document.getElementById('alert-banner');
+            const alertText = document.getElementById('alert-text');
+            
+            if (missedDoses.length > 0) {
+                const first = missedDoses[0];
+                alertText.textContent = `${first.medName} - ${first.dose} (was due at ${first.time})`;
+                alertBanner.classList.add('show');
+            } else {
+                alertBanner.classList.remove('show');
+            }
+            
+            // Update timer banner
+            const timerBanner = document.getElementById('timer-banner');
+            const nextDoseText = document.getElementById('next-dose-text');
+            const countdownText = document.getElementById('countdown-text');
+            
+            if (nextDose) {
+                const currentMinutes = getCurrentMinutes();
+                const timeUntil = nextDose.minutes - currentMinutes;
+                const hours = Math.floor(timeUntil / 60);
+                const minutes = timeUntil % 60;
+                
+                nextDoseText.textContent = `Next: ${nextDose.medName} - ${nextDose.dose}`;
+                
+                if (hours > 0) {
+                    countdownText.textContent = `in ${hours}h ${minutes}m`;
+                } else {
+                    countdownText.textContent = `in ${minutes}m`;
+                }
+                
+                timerBanner.classList.add('show');
+            } else {
+                timerBanner.classList.remove('show');
+            }
+        }
+
+        // Toggle checkbox
+        function toggleDose(medId, dayIndex, doseIndex) {
+            const data = loadData();
+            const key = `${medId}_${dayIndex}_${doseIndex}`;
+            data[key] = !data[key];
+            saveData(data);
+            renderMedications();
+            updateSummary();
+            updateTimerAndAlerts();
+        }
+
+        // Render medications for current day
+        function renderMedications() {
+            const container = document.getElementById('medication-container');
+            const data = loadData();
+            const collapsed = loadCollapsedState();
+            container.innerHTML = '';
+
+            medications.forEach(med => {
+                const daySchedule = med.schedule.find(s => s.day === currentDayIndex);
+                
+                if (!daySchedule) {
+                    return; // Skip if no doses for this day
+                }
+
+                const card = document.createElement('div');
+                card.className = 'med-card';
+
+                const headerClass = med.special ? 'med-header special-med' : 'med-header';
+                const isCollapsed = collapsed[med.id] || false;
+                const collapseIcon = isCollapsed ? '▼' : '▲';
+                const bodyClass = isCollapsed ? 'med-body collapsed' : 'med-body';
+                
+                let dosesHtml = '';
+                daySchedule.doses.forEach((dose, index) => {
+                    const key = `${med.id}_${currentDayIndex}_${index}`;
+                    const isChecked = data[key] || false;
+                    const checkedClass = isChecked ? 'checked' : '';
+                    
+                    dosesHtml += `
+                        <div class="dose-item ${isChecked ? 'completed' : ''}">
+                            <div>
+                                <div class="dose-label">${dose}</div>
+                                <div class="dose-time">${daySchedule.times[index]}</div>
+                            </div>
+                            <div class="checkbox-custom ${checkedClass}" 
+                                 onclick="toggleDose('${med.id}', ${currentDayIndex}, ${index})">
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Calculate progress
+                const completed = med.schedule.reduce((total, day) => {
+                    return total + day.doses.filter((_, idx) => {
+                        const key = `${med.id}_${day.day}_${idx}`;
+                        return data[key];
+                    }).length;
+                }, 0);
+                const progress = (completed / med.totalDoses * 100).toFixed(0);
+
+                card.innerHTML = `
+                    <div class="${headerClass}" onclick="toggleCollapse('${med.id}')">
+                        <div class="med-header-content">
+                            <div class="med-name">${med.name}</div>
+                            <div class="med-details">${med.details}</div>
+                        </div>
+                        <div class="collapse-icon ${isCollapsed ? 'collapsed' : ''}">${collapseIcon}</div>
+                    </div>
+                    <div class="${bodyClass}" id="body-${med.id}">
+                        <div class="dose-schedule">
+                            ${dosesHtml}
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-label">
+                                <span>Progress</span>
+                                <span>${completed}/${med.totalDoses} doses</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Update summary section
+        function updateSummary() {
+            const container = document.getElementById('summary-container');
+            const data = loadData();
+            container.innerHTML = '';
+
+            medications.forEach(med => {
+                const completed = med.schedule.reduce((total, day) => {
+                    return total + day.doses.filter((_, idx) => {
+                        const key = `${med.id}_${day.day}_${idx}`;
+                        return data[key];
+                    }).length;
+                }, 0);
+
+                const item = document.createElement('div');
+                item.className = 'summary-item';
+                item.innerHTML = `
+                    <div class="summary-med-name">${med.name.split(' ')[0]}</div>
+                    <div class="summary-progress">${completed}/${med.totalDoses}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Navigate days
+        function previousDay() {
+            if (currentDayIndex > 0) {
+                currentDayIndex--;
+                updateDateDisplay();
+                renderMedications();
+                updateTimerAndAlerts();
+            }
+        }
+
+        function nextDay() {
+            if (currentDayIndex < days.length - 1) {
+                currentDayIndex++;
+                updateDateDisplay();
+                renderMedications();
+                updateTimerAndAlerts();
+            }
+        }
+
+        function updateDateDisplay() {
+            document.getElementById('current-date').textContent = days[currentDayIndex].date;
+        }
+
+        // Reset all data
+        function resetAllData() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                localStorage.removeItem('medicationData');
+                localStorage.removeItem('collapsedState');
+                renderMedications();
+                updateSummary();
+                updateTimerAndAlerts();
+            }
+        }
+
+        // Initialize
+        renderMedications();
+        updateSummary();
+        updateTimerAndAlerts();
+        
+        // Update timer every minute
+        setInterval(updateTimerAndAlerts, 60000);
+    </script>
+</body>
+</html>
